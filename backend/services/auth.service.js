@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
 const User = require("../schemas/user.schema");
 
@@ -9,13 +10,15 @@ const signup = async (req, res) => {
       return res.status(400).json({ mesage: "User already exists" });
     }
 
-    const hashedPassword = bcrypt.hashSync(myPlaintextPassword, saltRounds);
+    const saltRounds = parseInt(process.env.SALT_ROUND);
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
     const newUser = new User({ email, password: hashedPassword });
+
     await newUser.save();
 
-    res.status(201).json({ message: "User created successfully" });
+     return res.status(201).json({ message: "User created successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -36,9 +39,9 @@ const login = async (req, res) => {
       expiresIn: '1h',
     });
 
-    res.status(200).json({ message: 'Login successful', token });
+    return res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 }
 

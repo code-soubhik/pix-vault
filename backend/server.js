@@ -1,7 +1,8 @@
 const dotenv = require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/db")
+const connectDB = require("./config/db");
+const router = require("./routes/route");
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.get("/health", (req, res) => {
         message: `Server is running on port: ${port}`
     })
 })
+
+app.use(router);
 
 app.listen(port, () =>{
     console.log(`Server is running on port: ${port}`)
