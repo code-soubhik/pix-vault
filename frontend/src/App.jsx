@@ -22,14 +22,10 @@ const onLogout = async () => {
   localStorage.removeItem('auth_token');
 };
 
-const onFetchUser = async () => {
-  const response = await authAPI.me();
-  return response.user || response;
-};
 
 function App() {
   return (
-    <AuthProvider onLogin={onLogin} onLogout={onLogout} onFetchUser={onFetchUser}>
+    <AuthProvider onLogin={onLogin} onLogout={onLogout}>
       <ToastProvider>
         <BrowserRouter>
           <Routes>

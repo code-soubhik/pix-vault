@@ -26,8 +26,7 @@ const imageModel = new mongoose.Schema(
     },
 
     path: {
-      type: String,
-      required: true,  // e.g. "/Photos/2025/Trip"
+      type: String
     },
 
     // Only for images

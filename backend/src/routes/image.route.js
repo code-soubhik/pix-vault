@@ -1,30 +1,31 @@
 const express = require("express");
 const path = require("path");
-const { singleUpload } = require("../middleware/image.middleware");
-
+const { singleUpload, multipleUpload } = require("../middleware/image.middleware");
+const { createFolder, singleFile, getFolders, getRootContents, deleteFolder, deleteImage, multipleFile, getImagesByFolder, searchImages, moveImage, getRootImages, getImage } = require("../services/image.service");
 const router = express.Router();
 
-router.post("/single", singleUpload, (req, res) => {
-  return res.status(200).json({ message: "Successfully" });
-});
+router.post("/single", singleUpload, singleFile);
 
+router.post("/multiple", multipleUpload, multipleFile);
 
-router.post("/create-folder", (req, res) => {
-  const { name, parentId } = req.body;
-  if(!parentId){
-    
-  }
-  return res.status(200).json({ message: "Successfully" });
-});
+router.post("/create-folder", createFolder);
 
-// router.post("/multiple", singleUpload, (req, res) => {
-//   return res.status(200).json({ message: "Successfully" });
-// });
+router.get("/folders", getFolders);
 
-// router.get("/multiple", (req, res) => {
-//   const filePath = path.join("uploads", "29beb5ed24fabbe8f067ec4b267bef5f");
+router.get("/root-contents", getRootContents);
 
-//   return res.sendFile(path.resolve(filePath));
-// });
+router.get("/root", getRootImages);
+
+router.get("/folder/:id/images", getImagesByFolder);
+
+router.get("/search", searchImages);
+
+router.put("/move", moveImage);
+
+router.delete("/folder/:id", deleteFolder);
+
+router.delete("/image/:id", deleteImage);
+
+router.get("/image/:id", getImage);
 
 module.exports = router;

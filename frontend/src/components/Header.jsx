@@ -11,7 +11,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gray-800 text-white p-4 flex justify-between items-center">
+    <header className="h-[10vh] bg-gray-800 text-white p-4 flex justify-between items-center">
       <h1 className="text-xl font-bold">Pix Vault</h1>
       <div className="flex items-center space-x-4">
         {user && <span>Welcome, {user.email}</span>}

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { imageAPI } from '../api';
 import CreateFolderModal from './CreateFolderModal';
 
-const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange }) => {
+const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange, onDropOnFolder, onCreateFolderClick, onUploadClick }) => {
   const [folders, setFolders] = useState([]);
   const [expanded, setExpanded] = useState(new Set());
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -49,23 +49,25 @@ const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange }) => {
 
   const renderTree = (items, level = 0) => {
     return items.map(item => (
-      <div key={item._id} style={{ paddingLeft: level * 20 }}>
+      <div key={item.id} style={{ paddingLeft: level * 20 }}>
         <div className="flex items-center">
           {item.type === 'folder' && (
-            <button onClick={() => toggleExpanded(item._id)} className="mr-2">
-              {expanded.has(item._id) ? '▼' : '▶'}
+            <button onClick={() => toggleExpanded(item.id)} className={`cursor-pointer mr-2 ${expanded.has(item.id) ? 'rotate-90' : ''}`}>
+              {">"}
             </button>
           )}
           <span
-            className={`cursor-pointer ${selectedFolderId === item._id ? 'bg-blue-200' : ''}`}
+            className={`cursor-pointer ${selectedFolderId === item.id ? 'bg-blue-200' : ''}`}
             onClick={() => onSelectFolder(item)}
+            onDrop={(e) => item.type === 'folder' && onDropOnFolder && onDropOnFolder(item.id, e)}
+            onDragOver={(e) => item.type === 'folder' && e.preventDefault()}
           >
             {item.type === 'folder' ? '📁' : '🖼️'} {item.name}
           </span>
           {item.type === 'folder' && (
             <button
               onClick={() => {
-                setParentForNew(item._id);
+                setParentForNew(item.id);
                 setCreateModalOpen(true);
               }}
               className="ml-2 text-sm text-blue-500"
@@ -74,7 +76,7 @@ const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange }) => {
             </button>
           )}
         </div>
-        {item.type === 'folder' && expanded.has(item._id) && (
+        {item.type === 'folder' && expanded.has(item.id) && (
           <div>
             {renderTree(item.children || [], level + 1)}
           </div>
@@ -88,13 +90,15 @@ const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange }) => {
     const map = {};
     const roots = [];
     flat.forEach(item => {
-      map[item._id] = { ...item, children: [] };
+      map[item.id] = { ...item, children: [] };
     });
     flat.forEach(item => {
       if (item.parentId) {
-        map[item.parentId].children.push(map[item._id]);
+        if (map[item.parentId]) {
+          map[item.parentId].children.push(map[item.id]);
+        }
       } else {
-        roots.push(map[item._id]);
+        roots.push(map[item.id]);
       }
     });
     return roots;
@@ -103,8 +107,22 @@ const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange }) => {
   const tree = buildTree(folders);
 
   return (
-    <div className="w-64 bg-gray-100 p-4">
+    <div className="w-64 h-[90vh] overflow-y-auto bg-gray-100 p-4">
       <h2 className="text-lg font-bold mb-4">Folders</h2>
+      <div className="flex space-x-2 mb-2">
+        <button
+          onClick={onCreateFolderClick}
+          className="text-sm text-blue-500 hover:underline"
+        >
+          + Create Folder
+        </button>
+        <button
+          onClick={onUploadClick}
+          className="text-sm text-green-500 hover:underline"
+        >
+          + Upload File
+        </button>
+      </div>
       <button
         onClick={() => {
           setParentForNew(null);
@@ -126,5 +144,4 @@ const FolderTree = ({ onSelectFolder, selectedFolderId, onFoldersChange }) => {
   );
 }
 
-
-  export default FolderTree;
+export default FolderTree;

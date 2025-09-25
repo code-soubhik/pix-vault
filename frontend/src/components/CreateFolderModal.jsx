@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { imageAPI } from '../api';
 
+const buildFolderOptions = (folders, parentId = null, prefix = '') => {
+  const options = [];
+  folders.filter(f => f.parentId === parentId).forEach(folder => {
+    options.push({ id: folder.id, name: prefix + folder.name });
+    options.push(...buildFolderOptions(folders, folder.id, prefix + '  '));
+  });
+  return options;
+};
+
 const CreateFolderModal = ({ isOpen, onClose, folders, onCreate, initialParentId }) => {
   const [name, setName] = useState('');
   const [parentId, setParentId] = useState(initialParentId || '');
@@ -26,7 +35,7 @@ const CreateFolderModal = ({ isOpen, onClose, folders, onCreate, initialParentId
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-blue-100 bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-6 rounded shadow-lg w-96">
         <h2 className="text-lg font-bold mb-4">Create Folder</h2>
         <form onSubmit={handleSubmit}>
@@ -48,11 +57,12 @@ const CreateFolderModal = ({ isOpen, onClose, folders, onCreate, initialParentId
               className="w-full border p-2 rounded"
             >
               <option value="">Root Directory</option>
-              {folders.filter(f => f.type === 'folder').map(folder => (
-                <option key={folder._id} value={folder._id}>{folder.path}</option>
+              {buildFolderOptions(folders.filter(f => f.type === 'folder')).map(option => (
+                <option key={option.id} value={option.id}>{option.name}</option>
               ))}
             </select>
           </div>
+          
           <div className="flex justify-end space-x-2">
             <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
               Cancel
